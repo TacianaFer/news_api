@@ -35,4 +35,28 @@ def count_by_source_author():
 
 if __name__ == '__main__':
     app.run(debug=True)
-    
+
+# Retornar todas a noticias
+@app.route('/all_news')
+def get_all_news():
+    query = """
+        SELECT *
+        FROM news
+    """
+    result = motor.execute(query).fetchall()
+    data = [{"title": row.title, "author": row.author, "publishedAt": row.publishedAt} for row in result]
+    return jsonify(data)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+# Retornar as noticias por ID
+@app.route('/news/<int:news_id>')
+def get_news_by_id(news_id):
+    if news_id in noticias_db:
+        return jsonify(noticias_db[news_id])
+    else:
+        return jsonify({"error": "Notícia não encontrada"}), 404
+
+if __name__ == '__main__':
+    app.run(debug=True)
