@@ -4,19 +4,23 @@ from sqlalchemy import create_engine, text
 
 app = Flask(__name__)
 
-engine = create_engine("sqlite:///news_api/news.db")
+engine = create_engine(
+    "postgresql://ada:PR1gvstOECPAb8Yqat1OptlTPm2orbDC@dpg-co6a0ka0si5c73cck8d0-a.oregon-postgres.render.com/database_vx82"
+)
 
 
 # Contar as notícias por ano, mês e dia de publicação
 @app.route("/count_by_date")
 def count_by_date():
     query = """
-        SELECT strftime('%Y', publishedAt) as year,
-               strftime('%m', publishedAt) as month,
-               strftime('%d', publishedAt) as day,
-               COUNT(*) as count
+        SELECT TO_CHAR(publishedAt, 'YYYY') AS year,
+       TO_CHAR(publishedAt, 'MM') AS month,
+       TO_CHAR(publishedAt, 'DD') AS day,
+       COUNT(*) AS count
         FROM news
-        GROUP BY year, month, day
+        GROUP BY year, month, day;
+
+
     """
 
     with engine.connect() as con:
