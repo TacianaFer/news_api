@@ -35,4 +35,36 @@ def count_by_source_author():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+# Retornar todas as noticias
+@app.route('/all_news')
+def get_all_news():
+    try:
+        conn = psycopg2.connect(**db_config)  
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT * FROM noticias')
+        news_list = cursor.fetchall()
+ # Transforme os dados em uma lista de dicionários para retornar como JSON
+        news_data = []
+        for news in news_list:
+            news_dict = {
+                'id': news[0],
+                'titulo': news[1],
+                'conteudo': news[2],
+                'autor': news[3],
+                'data_publicacao': news[4]
+            }
+            news_data.append(news_dict)
+        return jsonify(news_data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
     
