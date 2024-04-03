@@ -13,20 +13,27 @@ engine = create_engine(
 @app.route("/count_by_date")
 def count_by_date():
     query = """
-        SELECT TO_CHAR(publishedAt, 'YYYY') AS year,
-       TO_CHAR(publishedAt, 'MM') AS month,
-       TO_CHAR(publishedAt, 'DD') AS day,
-       COUNT(*) AS count
-        FROM news
-        GROUP BY year, month, day;
-
-
+        SELECT 
+            date_part('year', cast(publishedat as date)) as ano_publicacao,
+            date_part('month', cast(publishedat as date)) as mes_publicacao,
+            date_part('day', cast(publishedat as date)) as dia_publicacao,
+            count(*) as contagem_noticias
+        from news
+        group by ano_publicacao, mes_publicacao, dia_publicacao
     """
 
     with engine.connect() as con:
         result = con.execute(text(query)).fetchall()
     # result = engine.execute(query).fetchall()
-    data = [{"year": row.year, "month": row.month, "day": row.day, "count": row.count} for row in result]
+    data = [
+        {
+            "ano_publicacao": row.ano_publicacao,
+            "mes_publicacao": row.mes_publicacao,
+            "dia_publicacao": row.dia_publicacao,
+            "contagem_noticias": row.contagem_noticias,
+        }
+        for row in result
+    ]
     return jsonify(data)
 
 
