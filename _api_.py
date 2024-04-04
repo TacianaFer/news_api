@@ -74,8 +74,10 @@ def add_news():
             con.commit()
             return jsonify({"message": "Noticia adicionada com sucesso!"}), 201
     except Exception as e:
-        return jsonify({"erro": str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
-    if __name__ "__main__":
+    if __name__ == "__main__":
         app.run(debug=True)
+
+
 
