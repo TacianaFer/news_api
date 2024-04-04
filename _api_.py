@@ -53,3 +53,29 @@ def count_by_source_author():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+    # receber outras noticias que não foram mapeadas pela APi original
+
+@app.route("/add_news", methods=['POST'])
+def add_news():
+    try:
+        news_data = request.get_json()
+        print(news_data)
+
+        query = f"""
+            INSERT INTO news (source_name, author, title, description, url, url_to_image, published_at, content)
+            VALUES ('{news_data['source_name']}', '{news_data['author']}', '{news_data['title']}', '{news_data['description']}', '{news_data['url']}', '{news_data['url_to_image']}', '{news_data['published_at']}', '{news_data['content']}')
+        """
+        print(query)
+
+        with engine.connect() as con:
+            con.execute(text(query))
+            con.commit()
+            return jsonify({"message": "Noticia adicionada com sucesso!"}), 201
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500
+
+    if __name__ "__main__":
+        app.run(debug=True)
+
