@@ -1,5 +1,5 @@
 import pandas as pd
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from sqlalchemy import create_engine, text
 
 app = Flask(__name__)
@@ -49,6 +49,31 @@ def count_by_source_author():
         result = con.execute(text(query)).fetchall()
     data = [{"source_name": row.source_name, "author": row.author, "count": row.count} for row in result]
     return jsonify(data)
+
+
+@app.route("/all_news")
+def get_all_news():
+    try:
+        with engine.connect() as con:
+            news_list = con.execute(text("SELECT * FROM news")).fetchall()
+
+        news_data = [
+            {
+                "title": row.title,
+                "description": row.description,
+                "url": row.url,
+                "urltoimage": row.urltoimage,
+                "publishedat": row.publishedat,
+                "content": row.content,
+                "source_name": row.source_name,
+                "author": row.author,
+            }
+            for row in news_list
+        ]
+        print(news_data)
+        return jsonify(news_data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":
