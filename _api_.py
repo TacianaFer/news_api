@@ -76,13 +76,35 @@ def get_all_news():
         return jsonify({"error": str(e)}), 500
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
+@app.route("/keywords", methods=["GET"])
+def keywords():
+    try:
+        query = """
+            SELECT
+                date(publishedAt) as date,
+                sum(case when title like '%Apple%' then 1 else 0 end) as apple_count,
+                sum(case when title like '%Microsoft%' then 1 else 0 end) as microsoft_count,
+                sum(case when title like '%Google%' then 1 else 0 end) as google_count
+            FROM news
+            GROUP BY date(publishedAt)
+            ORDER BY date(publishedAt) ASC
+        """
 
+        with engine.connect() as con:
+            result = con.execute(text(query))
+            keyword_counts = [
+                {"date": row[0], "apple_count": row[1], "microsfot_count": row[2], "google_count": row[3]}
+                for row in result
+            ]
+
+        return jsonify(keyword_counts), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
     # receber outras noticias que não foram mapeadas pela APi original
 
-@app.route("/add_news", methods=['POST'])
+
+@app.route("/add_news", methods=["POST"])
 def add_news():
     try:
         news_data = request.get_json()
@@ -103,6 +125,3 @@ def add_news():
 
     if __name__ == "__main__":
         app.run(debug=True)
-
-
-
