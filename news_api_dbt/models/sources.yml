@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: news
+    database: database_vx82
+    schema: public
+    tables:
+      - name: news
